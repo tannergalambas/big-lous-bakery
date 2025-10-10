@@ -2,7 +2,6 @@
 import Hero from '@/components/Hero';
 import ProductCard from '@/components/ProductCard';
 import BrandTicker from '@/components/BrandTicker';
-import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getHomepage } from '@/lib/cms';
 import { headers, draftMode } from 'next/headers';
@@ -151,8 +150,6 @@ export default async function Page() {
       </section>
 
       <BrandTicker />
-
-      <InstagramFeed initialPosts={homepage?.instagramFeed ?? undefined} />
 
       <NewsletterSignup
         title={homepage?.newsletterTitle}

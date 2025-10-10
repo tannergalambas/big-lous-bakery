@@ -3,6 +3,4 @@ import faqItem from './faqItem'
 import navigation from './navigation'
 import siteSettings from './siteSettings'
 import homepage from './homepage'
-import instagramPost from './instagramPost'
-
-export const schemaTypes = [page, faqItem, navigation, siteSettings, homepage, instagramPost]
+export const schemaTypes = [page, faqItem, navigation, siteSettings, homepage]

@@ -111,13 +111,5 @@ export default {
       type: 'text',
       rows: 3,
     },
-    {
-      name: 'instagramFeed',
-      title: 'Instagram feed',
-      description: 'Upload the six posts you want to feature. These replace the automatic feed when filled.',
-      type: 'array',
-      of: [{ type: 'instagramPost' }],
-      validation: (Rule: any) => Rule.max(6),
-    },
   ],
 }
