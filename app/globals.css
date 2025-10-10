@@ -375,28 +375,38 @@ body::before {
 }
 
 /* Brand ticker animations */
-@keyframes scroll-right {
+@keyframes ticker-left {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes ticker-right {
+  0% {
+    transform: translateX(-50%);
   }
   100% {
     transform: translateX(0%);
   }
 }
 
-@keyframes scroll-left {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+.ticker-line {
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
+  animation-duration: 28s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  white-space: nowrap;
 }
 
-.animate-scroll-right {
-  animation: scroll-right 30s linear infinite;
+.ticker-line--left {
+  animation-name: ticker-left;
 }
 
-.animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
+.ticker-line--right {
+  animation-name: ticker-right;
 }

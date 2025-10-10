@@ -47,35 +47,39 @@ export default function BrandTicker() {
         </div>
 
         {/* Ticker Animation */}
-        <div className="relative">
+        <div className="space-y-6">
           {/* First ticker row */}
-          <div className="flex animate-scroll-right whitespace-nowrap mb-6">
-            {[...values, ...values].map((value, index) => (
-              <div
-                key={`row1-${index}`}
-                className="flex items-center gap-4 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full mx-2 min-w-fit"
-              >
-                <span className="text-2xl">{value.icon}</span>
-                <span className="text-white font-bold tracking-wider text-lg">
-                  {value.text}
-                </span>
-              </div>
-            ))}
+          <div className="relative overflow-hidden">
+            <div className="ticker-line ticker-line--right">
+              {[...values, ...values].map((value, index) => (
+                <div
+                  key={`row1-${index}`}
+                  className="flex items-center gap-4 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full mx-2 min-w-fit"
+                >
+                  <span className="text-2xl">{value.icon}</span>
+                  <span className="text-white font-bold tracking-wider text-lg">
+                    {value.text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Second ticker row (reverse direction) */}
-          <div className="flex animate-scroll-left whitespace-nowrap">
-            {[...values.slice().reverse(), ...values.slice().reverse()].map((value, index) => (
-              <div
-                key={`row2-${index}`}
-                className="flex items-center gap-4 px-8 py-4 bg-white/15 backdrop-blur-sm rounded-full mx-2 min-w-fit"
-              >
-                <span className="text-2xl">{value.icon}</span>
-                <span className="text-white font-bold tracking-wider text-lg">
-                  {value.text}
-                </span>
-              </div>
-            ))}
+          <div className="relative overflow-hidden">
+            <div className="ticker-line ticker-line--left">
+              {[...values.slice().reverse(), ...values.slice().reverse()].map((value, index) => (
+                <div
+                  key={`row2-${index}`}
+                  className="flex items-center gap-4 px-8 py-4 bg-white/15 backdrop-blur-sm rounded-full mx-2 min-w-fit"
+                >
+                  <span className="text-2xl">{value.icon}</span>
+                  <span className="text-white font-bold tracking-wider text-lg">
+                    {value.text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
