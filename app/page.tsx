@@ -104,8 +104,8 @@ export default async function Page() {
             <p className="text-gray-500 mb-8 max-w-md mx-auto text-lg leading-relaxed">
               Add items in your Square Sandbox and refresh to see your delicious products here.
             </p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <a
+              href="/shop"
               className="btn btn-brand btn-enhanced hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
             >
               <span className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export default async function Page() {
                 </svg>
                 Refresh Products
               </span>
-            </button>
+            </a>
           </div>
         ) : (
           <>

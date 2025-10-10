@@ -248,6 +248,7 @@ export type Homepage = {
   newsletterSuccessDescription?: string;
   instagramFeed?: Array<{
     image?: string | null;
+    imageUrl?: string | null;
     alt?: string;
     permalink: string;
     caption?: string;
@@ -276,6 +277,7 @@ export async function getHomepage(preview = false): Promise<Homepage | null> {
       newsletterSuccessDescription,
       instagramFeed[]{
         'image': image.asset->url,
+        imageUrl,
         'alt': coalesce(image.alt, ''),
         permalink,
         caption

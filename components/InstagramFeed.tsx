@@ -15,6 +15,7 @@ type FallbackPost = {
 
 export type InstagramFeedItem = {
   image?: string | null;
+  imageUrl?: string | null;
   alt?: string;
   permalink: string;
   caption?: string | null;
@@ -44,6 +45,7 @@ export default function InstagramFeed({ initialPosts }: Props) {
             .slice(0, 6)
             .map((post) => ({
               image: post.image_url,
+              imageUrl: post.image_url,
               alt: post.caption,
               permalink: post.permalink,
               caption: post.caption,
@@ -132,9 +134,9 @@ export default function InstagramFeed({ initialPosts }: Props) {
               className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 hover:shadow-xl transition-all duration-300 animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              {post.image ? (
+              {post.image || post.imageUrl ? (
                 <Image
-                  src={post.image}
+                  src={post.image || post.imageUrl!}
                   alt={post.alt || 'Instagram post'}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-300"
