@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 type Cta = { label: string; href: string };
@@ -9,14 +10,16 @@ type HeroProps = {
   title?: string;
   subtitle?: string;
   ctas?: Cta[];
-  badgeText?: string;
+  image?: string;
+  secondaryImage?: string;
 };
 
 export default function Hero({
   title,
   subtitle,
   ctas,
-  badgeText = 'FRESH BAKED DAILY',
+  image = '/C3D858C4-1D83-4665-A3B2-3711A3CA9BC5_4_5005_c.jpeg',
+  secondaryImage = '/DC71389D-2882-4FFA-9953-764146A1FCB9_4_5005_c.jpeg',
 }: HeroProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -53,7 +56,7 @@ export default function Hero({
         ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-cream via-cream/90 to-accent/20">
+    <section className="relative min-h-screen flex items-start justify-center overflow-hidden bg-gradient-to-br from-cream via-cream/90 to-accent/20">
       {/* Enhanced Background Pattern */}
       <div className="absolute inset-0 opacity-60"></div>
       
@@ -62,16 +65,17 @@ export default function Hero({
       <div className="absolute bottom-32 right-16 w-32 h-32 bg-accent/20 rounded-full blur-2xl animate-float" style={{animationDelay: '2s'}}></div>
 
       {/* Main Content */}
-      <div className="container relative z-10 text-center px-4">
+      <div className="container relative z-10 text-center px-4 pt-20 md:pt-24 lg:pt-28 pb-16">
         <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full border border-brand/10 shadow-lg mb-8">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-brand font-medium text-sm tracking-wide">{badgeText}</span>
+          {/* Logo Badge */}
+          <div className="inline-flex items-center justify-center mb-4 md:mb-6">
+            <div className="relative w-28 h-28 rounded-3xl overflow-hidden shadow-xl border border-white/40 bg-white/80 backdrop-blur">
+              <Image src="/logo.jpeg" alt="Big Lou's Bakery" fill className="object-contain" sizes="112px" priority quality={100} />
+            </div>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 md:mb-6 leading-tight">
             <span className="block gradient-text">{primaryTitle}</span>
             {secondaryTitle ? (
               <span className="block text-brand/80 font-body font-light italic text-4xl md:text-5xl lg:text-6xl mt-2">
@@ -116,15 +120,36 @@ export default function Hero({
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="flex flex-col items-center gap-2 text-brand/60 animate-bounce">
-          <span className="text-sm font-medium tracking-wider">SCROLL</span>
-          <div className="w-0.5 h-8 bg-brand/30 rounded-full">
-            <div className="w-full h-2 bg-brand rounded-full animate-pulse"></div>
-          </div>
+      {/* Feature Images */}
+      <div className={`hidden lg:block absolute bottom-20 right-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-10 scale-95'}`}>
+        <div className="relative w-[420px] h-[420px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/20 bg-white/40 backdrop-blur">
+          <Image
+            src={image}
+            alt={secondaryTitle ? `${primaryTitle} ${secondaryTitle}` : primaryTitle}
+            fill
+            priority
+            quality={100}
+            className="object-cover"
+            sizes="420px"
+          />
         </div>
       </div>
+
+      <div className={`hidden lg:block absolute top-8 left-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}>
+        <div className="relative w-[260px] h-[260px] rounded-[2rem] overflow-hidden shadow-2xl border border-white/30 bg-white/50 backdrop-blur">
+          <Image
+            src={secondaryImage}
+            alt={secondaryTitle ? `${primaryTitle} ${secondaryTitle}` : primaryTitle}
+            fill
+            priority
+            quality={100}
+            className="object-cover"
+            sizes="260px"
+          />
+        </div>
+      </div>
+
+      
     </section>
   );
 }

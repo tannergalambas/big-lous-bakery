@@ -81,7 +81,8 @@ export default async function Page() {
         title={homepage?.heroTitle}
         subtitle={homepage?.heroSubtitle}
         ctas={homepage?.ctas}
-        badgeText={homepage?.heroBadge}
+        image={homepage?.heroImage ?? '/C3D858C4-1D83-4665-A3B2-3711A3CA9BC5_4_5005_c.jpeg'}
+        secondaryImage='/DC71389D-2882-4FFA-9953-764146A1FCB9_4_5005_c.jpeg'
       />
 
       <section className="container py-16">
