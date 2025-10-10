@@ -1,5 +1,6 @@
 import { getNavigation, getSiteSettings } from '@/lib/cms';
 import { draftMode } from 'next/headers';
+import Image from 'next/image';
 
 export default async function Footer() {
   const preview = draftMode().isEnabled;
@@ -41,8 +42,8 @@ export default async function Footer() {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                {siteName.slice(0, 2).toUpperCase()}
+              <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center shadow-lg">
+                <Image src="/logo.jpeg" alt={siteName} fill className="object-contain" sizes="56px" quality={100} />
               </div>
               <h3 className="text-xl font-bold">{siteName}</h3>
             </div>

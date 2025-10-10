@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/store/cart';
 import { useState, useEffect } from 'react';
 import type { NavItem } from '@/lib/navigation';
@@ -27,9 +28,17 @@ export default function NavbarClient({ navigationItems, siteName = "Big Lou's Ba
     <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-lg border-b border-accent/30 shadow-lg' : 'bg-white/90 backdrop-blur-md border-b border-accent/20 shadow-sm'}`}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand/80 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
-            BL
+        <Link href="/" className="flex items-center gap-4 group">
+          <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-md bg-white">
+            <Image
+              src="/logo.jpeg"
+              alt={siteName}
+              fill
+              className="object-contain"
+              sizes="64px"
+              priority
+              quality={100}
+            />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-brand to-brand/80 bg-clip-text text-transparent">
             {siteName}
