@@ -152,7 +152,7 @@ export default async function Page() {
 
       <BrandTicker />
 
-      <InstagramFeed />
+      <InstagramFeed initialPosts={homepage?.instagramFeed ?? undefined} />
 
       <NewsletterSignup
         title={homepage?.newsletterTitle}

@@ -246,6 +246,12 @@ export type Homepage = {
   newsletterButtonLabel?: string;
   newsletterSuccessTitle?: string;
   newsletterSuccessDescription?: string;
+  instagramFeed?: Array<{
+    image?: string | null;
+    alt?: string;
+    permalink: string;
+    caption?: string;
+  }>;
 };
 
 export async function getHomepage(preview = false): Promise<Homepage | null> {
@@ -267,7 +273,13 @@ export async function getHomepage(preview = false): Promise<Homepage | null> {
       newsletterHighlights,
       newsletterButtonLabel,
       newsletterSuccessTitle,
-      newsletterSuccessDescription
+      newsletterSuccessDescription,
+      instagramFeed[]{
+        'image': image.asset->url,
+        'alt': coalesce(image.alt, ''),
+        permalink,
+        caption
+      }
     }`;
     const client = preview ? sanityFor(true) : sanity;
     const data = await client.fetch<Homepage | null>(query);

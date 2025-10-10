@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-interface InstagramPost {
+type FallbackPost = {
   id: string;
   image_url: string;
   caption: string;
@@ -11,20 +11,44 @@ interface InstagramPost {
   timestamp: string;
   like_count: number;
   comments_count: number;
+};
+
+export type InstagramFeedItem = {
+  image?: string | null;
+  alt?: string;
+  permalink: string;
+  caption?: string | null;
+};
+
+interface Props {
+  initialPosts?: InstagramFeedItem[] | null;
 }
 
-export default function InstagramFeed() {
-  const [posts, setPosts] = useState<InstagramPost[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function InstagramFeed({ initialPosts }: Props) {
+  const [posts, setPosts] = useState<InstagramFeedItem[]>(initialPosts ?? []);
+  const [loading, setLoading] = useState(!(initialPosts && initialPosts.length > 0));
 
   useEffect(() => {
+    if (initialPosts && initialPosts.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/instagram');
         const data = await response.json();
         
         if (data.success) {
-          setPosts(data.data.slice(0, 6)); // Show only 6 posts
+          const mapped: InstagramFeedItem[] = (data.data as FallbackPost[])
+            .slice(0, 6)
+            .map((post) => ({
+              image: post.image_url,
+              alt: post.caption,
+              permalink: post.permalink,
+              caption: post.caption,
+            }));
+          setPosts(mapped);
         }
       } catch (error) {
         console.error('Failed to fetch Instagram posts:', error);
@@ -34,7 +58,7 @@ export default function InstagramFeed() {
     };
 
     fetchPosts();
-  }, []);
+  }, [initialPosts]);
 
   if (loading) {
     return (
@@ -101,42 +125,28 @@ export default function InstagramFeed() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {posts.map((post, index) => (
             <a
-              key={post.id}
+              key={post.permalink}
               href={post.permalink}
               target="_blank"
               rel="noopener noreferrer"
               className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 hover:shadow-xl transition-all duration-300 animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <Image
-                src={post.image_url}
-                alt={post.caption}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
-                loading="lazy"
-                style={{ objectFit: 'cover' }}
-              />
-              
-              {/* Overlay with engagement stats */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <div className="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                      <span className="text-sm font-medium">{post.like_count}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                      </svg>
-                      <span className="text-sm font-medium">{post.comments_count}</span>
-                    </div>
-                  </div>
+              {post.image ? (
+                <Image
+                  src={post.image}
+                  alt={post.alt || 'Instagram post'}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-300"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                  loading="lazy"
+                  style={{ objectFit: 'cover' }}
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand/10 to-brand/20 text-brand font-semibold">
+                  View Post
                 </div>
-              </div>
+              )}
             </a>
           ))}
         </div>
