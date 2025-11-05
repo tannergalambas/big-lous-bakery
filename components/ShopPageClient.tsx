@@ -116,7 +116,7 @@ export default function ShopPageClient({ title, description, ctaTitle, ctaDescri
           </div>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">No Products Available</h2>
           <p className="text-gray-500 mb-8 max-w-lg mx-auto">
-            We're currently updating our product catalog. Please check back soon or contact us directly for special orders.
+            We&apos;re currently updating our product catalog. Please check back soon or contact us directly for special orders.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {(ctas && ctas.length ? ctas : [
@@ -169,7 +169,7 @@ export default function ShopPageClient({ title, description, ctaTitle, ctaDescri
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No {selectedCategory} Found</h3>
               <p className="text-gray-500 mb-6">
-                We don't have any {selectedCategory.toLowerCase()} available right now. Check back soon or try another category!
+                We don&apos;t have any {selectedCategory.toLowerCase()} available right now. Check back soon or try another category!
               </p>
               <button onClick={() => setSelectedCategory('All')} className="btn btn-brand">
                 View All Products

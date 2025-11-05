@@ -14,6 +14,22 @@ type Product = {
   image?: string | null;
 };
 
+function getSafeImage(src?: string | null) {
+  if (typeof src !== 'string') return null;
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('//')) {
+    return `https:${trimmed}`;
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/^http:\/\//i, 'https://');
+  }
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return null;
+}
+
 function formatMoney(
   v: number | string | null | undefined,
   currency = 'USD'
@@ -32,6 +48,11 @@ export default function ProductCard({ product }: { product: Product }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const add = useCart((s) => s.add);
+
+  const safeImage = getSafeImage(product.image);
+  const isRemoteSquareImage =
+    typeof safeImage === 'string' &&
+    safeImage.startsWith('https://items-images-');
   
   const price =
     typeof product.price === 'string'
@@ -76,10 +97,10 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Image and badges - clickable to product page */}
         <Link href={`/products/${product.id}`} className="block">
           <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-cream/30 to-accent/20 mb-4 shadow-inner">
-            {product.image ? (
+            {safeImage ? (
               <>
                 <Image
-                  src={product.image}
+                  src={safeImage}
                   alt={product.name || 'Product image'}
                   fill
                   className={`object-cover transition-all duration-700 ease-out ${imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'} group-hover:scale-110`}
@@ -87,6 +108,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   onLoad={() => setImageLoaded(true)}
                   loading="lazy"
                   style={{ objectFit: 'cover' }}
+                  unoptimized={isRemoteSquareImage}
                 />
                 
                 {/* Overlay effects */}

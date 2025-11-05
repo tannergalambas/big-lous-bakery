@@ -71,7 +71,7 @@ export default function InstagramFeed({ initialPosts }: Props) {
               Follow Our Journey
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              See what's fresh from our ovens on Instagram
+              See what&apos;s fresh from our ovens on Instagram
             </p>
           </div>
           
@@ -93,7 +93,7 @@ export default function InstagramFeed({ initialPosts }: Props) {
             Follow Our Journey
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-            See what's fresh from our ovens on Instagram
+            See what&apos;s fresh from our ovens on Instagram
           </p>
           
           {/* Social Media Links */}

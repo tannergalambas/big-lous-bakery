@@ -14,6 +14,27 @@ const headers: Record<string, string> = {
   'Square-Version': '2024-07-17',
 };
 
+function sanitizeImageUrl(input: unknown): string | null {
+  if (typeof input !== 'string') return null;
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.replace(/^http:\/\//i, 'https://');
+
+  try {
+    const url = new URL(normalized);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      return null;
+    }
+    // We always prefer https when available.
+    if (url.protocol === 'http:') {
+      url.protocol = 'https:';
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 if (process.env.SQUARE_ACCESS_TOKEN) {
   headers.Authorization = `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`;
 }
@@ -28,7 +49,10 @@ function buildImageMap(related: Related) {
   const map = new Map<string, string>();
   for (const r of related ?? []) {
     if (r?.type === 'IMAGE' && r?.id && r?.image_data?.url) {
-      map.set(r.id, r.image_data.url);
+      const sanitized = sanitizeImageUrl(r.image_data.url);
+      if (sanitized) {
+        map.set(r.id, sanitized);
+      }
     }
   }
   return map;
@@ -54,10 +78,7 @@ function normalizeSingleItem(item: any, related: Related) {
       name: vd?.name ?? 'Default',
       price: centsToDollars(vd?.price_money?.amount),
       currency: vd?.price_money?.currency ?? 'USD',
-      image:
-        vd?.image_ids?.[0] && images.get(vd.image_ids[0])
-          ? images.get(vd.image_ids[0])!
-          : null,
+      image: vd?.image_ids?.[0] && images.get(vd.image_ids[0]) ? images.get(vd.image_ids[0])! : null,
     };
   });
 
@@ -72,7 +93,7 @@ function normalizeSingleItem(item: any, related: Related) {
     description: item?.item_data?.description ?? '',
     price: variations[0]?.price ?? null,
     currency: variations[0]?.currency ?? 'USD',
-    image,
+    image: sanitizeImageUrl(image),
     variations,
   };
 }
@@ -122,7 +143,7 @@ async function listItemsRobust() {
       description: i?.description ?? '',
       price: centsToDollars(v0?.price_money?.amount),
       currency: v0?.price_money?.currency ?? 'USD',
-      image: i?.image_url ?? null,
+      image: sanitizeImageUrl(i?.image_url),
     };
   });
 
@@ -145,7 +166,7 @@ async function listItemsRobust() {
           description: filled.description || x.description || '',
           price: filled.price ?? x.price ?? null,
           currency: filled.currency || x.currency || 'USD',
-          image: filled.image ?? x.image ?? null,
+          image: sanitizeImageUrl(filled.image ?? x.image),
         };
         byId.set(x.id, merged);
       } catch {

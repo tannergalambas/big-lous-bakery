@@ -156,7 +156,7 @@ export default async function Page() {
         <div className="container text-center">
           <h2 className="text-3xl lg:text-4xl font-bold gradient-text mb-4">Hang out with us online</h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Follow Big Lou's for pop-up announcements, fresh menu drops, and behind-the-scenes bakes.
+            Follow Big Lou&apos;s for pop-up announcements, fresh menu drops, and behind-the-scenes bakes.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
