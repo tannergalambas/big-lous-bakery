@@ -11,6 +11,13 @@ export type Product = {
   price?: number | string | null;
   currency?: string;
   image?: string | null;
+  variations?: Array<{
+    id: string;
+    name?: string;
+    price?: number | string | null;
+    currency?: string;
+    image?: string | null;
+  }>;
 };
 
 type Props = {

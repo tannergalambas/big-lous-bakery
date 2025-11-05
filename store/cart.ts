@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 type CartItem = {
   id: string;          // ui id, e.g. `${productId}:${variationId}`
   productId?: string;
-  variationId?: string; // <-- add this line
+  variationId?: string;
   name: string;
   price: number;        // dollars
   qty: number;
@@ -53,6 +53,56 @@ export const useCart = create<CartState>()(
         }),
       clear: () => set({ items: [], count: 0 }),
     }),
-    { name: 'big-lous-cart' }
+    {
+      name: 'big-lous-cart',
+      version: 1,
+      migrate: (state: any, version: number) => {
+        if (!state) return state;
+        if (version < 1 && Array.isArray(state.items)) {
+          const upgraded = state.items.map((item: any) => {
+            if (!item || typeof item !== 'object') return item;
+            const idString = typeof item.id === 'string' ? item.id : '';
+            const parts = idString.split(':');
+            const inferredProductId =
+              typeof item.productId === 'string' && item.productId.trim()
+                ? item.productId
+                : parts[0] || undefined;
+            const inferredVariationId =
+              typeof item.variationId === 'string' && item.variationId.trim()
+                ? item.variationId
+                : parts.length > 1
+                  ? parts[parts.length - 1]
+                  : undefined;
+
+            const fallbackId =
+              typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+            const normalizedId =
+              inferredProductId && inferredVariationId
+                ? `${inferredProductId}:${inferredVariationId}`
+                : idString || inferredProductId || inferredVariationId || fallbackId;
+
+            return {
+              ...item,
+              id: normalizedId,
+              productId: inferredProductId,
+              variationId: inferredVariationId,
+            };
+          });
+
+          return {
+            ...state,
+            items: upgraded,
+            count: upgraded.reduce(
+              (sum: number, item: any) => sum + (Number(item?.qty) || 0),
+              0
+            ),
+          };
+        }
+        return state;
+      },
+    }
   )
 );

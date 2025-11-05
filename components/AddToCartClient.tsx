@@ -8,6 +8,7 @@ type Variation = {
   name?: string;
   price?: number | string | null;
   currency?: string;
+  image?: string | null;
 };
 
 type Product = {
@@ -55,23 +56,29 @@ export default function AddToCartClient({
     [variations, product.id, product.price, product.currency]
   );
 
-  const [variationId, setVariationId] = useState<string>(options[0]?.id ?? product.id);
+  const [selectedVariationId, setSelectedVariationId] = useState<string>(options[0]?.id ?? product.id);
   const [qty, setQty] = useState(1);
 
   const selected =
-    options.find((v) => v.id === variationId) ?? options[0];
+    options.find((v) => v.id === selectedVariationId) ?? options[0];
 
   const unitPrice = coercePrice(selected?.price ?? product.price);
   const currency = selected?.currency ?? product.currency ?? 'USD';
+  const image = (selected?.image ?? product.image) ?? null;
+  const resolvedVariationId = selected?.id ?? product.id;
 
   function handleAdd() {
     add({
-      id: `${product.id}:${selected?.id ?? product.id}`,
+      id: `${product.id}:${resolvedVariationId}`,
+      productId: product.id,
+      variationId: resolvedVariationId,
       name:
         product.name +
         (selected?.name && selected.name !== 'Default' ? ` — ${selected.name}` : ''),
       price: unitPrice, // ← always a number
       qty,
+      image,
+      currency,
     });
   }
 
@@ -81,8 +88,8 @@ export default function AddToCartClient({
         <>
           <label className="block text-sm">Select option</label>
           <select
-            value={variationId}
-            onChange={(e) => setVariationId(e.target.value)}
+            value={selectedVariationId}
+            onChange={(e) => setSelectedVariationId(e.target.value)}
             className="input w-full max-w-sm"
           >
             {options.map((v) => (

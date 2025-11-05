@@ -14,6 +14,14 @@ const headers: Record<string, string> = {
   'Square-Version': '2024-07-17',
 };
 
+type NormalizedVariation = {
+  id: string;
+  name: string;
+  price: number | null;
+  currency: string;
+  image: string | null;
+};
+
 function sanitizeImageUrl(input: unknown): string | null {
   if (typeof input !== 'string') return null;
   const trimmed = input.trim();
@@ -71,7 +79,7 @@ function pickImageUrlFromObject(item: any, images: Map<string, string>): string 
 
 function normalizeSingleItem(item: any, related: Related) {
   const images = buildImageMap(related);
-  const variations = (item?.item_data?.variations ?? []).map((v: any) => {
+  const variations: NormalizedVariation[] = (item?.item_data?.variations ?? []).map((v: any) => {
     const vd = v?.item_variation_data;
     return {
       id: v?.id,
@@ -128,14 +136,15 @@ async function listItemsRobust() {
   const data = await res.json();
 
   // Initial pass from search-catalog-items
-  const initial: Array<{
-    id: string;
-    name?: string;
-    description?: string;
-    price?: number | null;
-    currency?: string;
-    image?: string | null;
-  }> = (data.items ?? []).map((i: any) => {
+const initial: Array<{
+  id: string;
+  name?: string;
+  description?: string;
+  price?: number | null;
+  currency?: string;
+  image?: string | null;
+  variations?: NormalizedVariation[];
+}> = (data.items ?? []).map((i: any) => {
     const v0 = i?.variations?.[0]?.item_variation_data;
     return {
       id: i?.id,
@@ -144,6 +153,16 @@ async function listItemsRobust() {
       price: centsToDollars(v0?.price_money?.amount),
       currency: v0?.price_money?.currency ?? 'USD',
       image: sanitizeImageUrl(i?.image_url),
+      variations: (i?.variations ?? []).map((v: any) => {
+        const vd = v?.item_variation_data;
+        return {
+          id: v?.id,
+          name: vd?.name ?? 'Default',
+          price: centsToDollars(vd?.price_money?.amount),
+          currency: vd?.price_money?.currency ?? 'USD',
+          image: sanitizeImageUrl(vd?.image_url),
+        } as NormalizedVariation;
+      }),
     };
   });
 
@@ -167,6 +186,9 @@ async function listItemsRobust() {
           price: filled.price ?? x.price ?? null,
           currency: filled.currency || x.currency || 'USD',
           image: sanitizeImageUrl(filled.image ?? x.image),
+          variations: filled.variations?.length
+            ? filled.variations
+            : x.variations ?? [],
         };
         byId.set(x.id, merged);
       } catch {
@@ -186,6 +208,15 @@ const FALLBACK_PRODUCTS = [
     price: 3.5,
     currency: 'USD',
     image: '/chocolate-chunk-cookies.jpeg',
+    variations: [
+      {
+        id: 'mock-1',
+        name: 'Default',
+        price: 3.5,
+        currency: 'USD',
+        image: '/chocolate-chunk-cookies.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-2',
@@ -194,6 +225,15 @@ const FALLBACK_PRODUCTS = [
     price: 4.25,
     currency: 'USD',
     image: '/3DED26DC-832D-46F6-957D-830F1EBB3331_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-2',
+        name: 'Default',
+        price: 4.25,
+        currency: 'USD',
+        image: '/3DED26DC-832D-46F6-957D-830F1EBB3331_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-3',
@@ -202,6 +242,15 @@ const FALLBACK_PRODUCTS = [
     price: 3.0,
     currency: 'USD',
     image: '/282FFA65-692C-461D-8B67-9AFA5514ABE1_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-3',
+        name: 'Default',
+        price: 3.0,
+        currency: 'USD',
+        image: '/282FFA65-692C-461D-8B67-9AFA5514ABE1_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-4',
@@ -210,6 +259,15 @@ const FALLBACK_PRODUCTS = [
     price: 4.5,
     currency: 'USD',
     image: '/A12FD468-BF4B-4089-91FC-AB08BB6D13EF_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-4',
+        name: 'Default',
+        price: 4.5,
+        currency: 'USD',
+        image: '/A12FD468-BF4B-4089-91FC-AB08BB6D13EF_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-5',
@@ -218,6 +276,15 @@ const FALLBACK_PRODUCTS = [
     price: 3.75,
     currency: 'USD',
     image: '/77DB1324-FF2E-471E-940B-6E714614DA23_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-5',
+        name: 'Default',
+        price: 3.75,
+        currency: 'USD',
+        image: '/77DB1324-FF2E-471E-940B-6E714614DA23_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-6',
@@ -226,6 +293,15 @@ const FALLBACK_PRODUCTS = [
     price: 5.0,
     currency: 'USD',
     image: '/63A58EBB-29B9-4B83-8973-6112DC671710_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-6',
+        name: 'Default',
+        price: 5.0,
+        currency: 'USD',
+        image: '/63A58EBB-29B9-4B83-8973-6112DC671710_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-7',
@@ -234,6 +310,15 @@ const FALLBACK_PRODUCTS = [
     price: 3.25,
     currency: 'USD',
     image: '/0036B461-78BB-4046-BC65-41651D60DB18_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-7',
+        name: 'Default',
+        price: 3.25,
+        currency: 'USD',
+        image: '/0036B461-78BB-4046-BC65-41651D60DB18_4_5005_c.jpeg',
+      },
+    ],
   },
   {
     id: 'mock-8',
@@ -242,6 +327,15 @@ const FALLBACK_PRODUCTS = [
     price: 5.5,
     currency: 'USD',
     image: '/8E56CCAD-C999-44CF-8302-34365D17E5D4_4_5005_c.jpeg',
+    variations: [
+      {
+        id: 'mock-8',
+        name: 'Default',
+        price: 5.5,
+        currency: 'USD',
+        image: '/8E56CCAD-C999-44CF-8302-34365D17E5D4_4_5005_c.jpeg',
+      },
+    ],
   },
 ];
 

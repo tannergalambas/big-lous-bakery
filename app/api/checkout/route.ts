@@ -13,10 +13,61 @@ const headers = {
   'Square-Version': '2024-07-17',
 };
 
+type CartPayloadItem = {
+  variationId?: string;
+  id?: string;
+  qty: number;
+  note?: string;
+  price?: number | string | null;
+  currency?: string | null;
+};
+
 type CartPayload = {
-  items: Array<{ variationId?: string; id?: string; qty: number; note?: string }>;
+  items: CartPayloadItem[];
   redirectUrl?: string;
 };
+
+function normalizeMoney(input: number | string | null | undefined) {
+  if (typeof input === 'number') {
+    return Number.isFinite(input) ? input : null;
+  }
+  if (typeof input === 'string') {
+    const parsed = Number(input);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function buildLineItem(item: CartPayloadItem) {
+  const catalogObjectId = item.variationId || item.id;
+  if (!catalogObjectId) return null;
+
+  const line: Record<string, any> = {
+    catalog_object_id: catalogObjectId,
+    quantity: String(Math.max(1, Number(item.qty) || 1)),
+  };
+
+  if (item.note) {
+    line.note = item.note;
+  }
+
+  const price = normalizeMoney(item.price);
+  if (price != null && price >= 0) {
+    const cents = Math.round(price * 100);
+    if (Number.isFinite(cents)) {
+      const currency =
+        typeof item.currency === 'string' && item.currency.trim()
+          ? item.currency.trim().toUpperCase()
+          : 'USD';
+      line.base_price_money = {
+        amount: cents,
+        currency,
+      };
+    }
+  }
+
+  return line;
+}
 
 export async function POST(req: Request) {
   try {
@@ -28,11 +79,9 @@ export async function POST(req: Request) {
       // JSON (optional — you’re using form mode below, but we keep both)
       const payload = (await req.json()) as CartPayload;
       redirectUrl = payload.redirectUrl ?? undefined;
-      line_items = (payload.items ?? []).map((i) => ({
-        catalog_object_id: i.variationId || i.id,
-        quantity: String(Math.max(1, Number(i.qty) || 1)),
-        note: i.note,
-      }));
+      line_items = (payload.items ?? [])
+        .map(buildLineItem)
+        .filter((item): item is Record<string, any> => Boolean(item));
     } else {
       // FORM mode (used by the cart + “Buy Now”)
       const form = await req.formData();
@@ -42,16 +91,16 @@ export async function POST(req: Request) {
       if (payloadStr) {
         const payload = JSON.parse(payloadStr) as CartPayload;
         redirectUrl = payload.redirectUrl ?? undefined;
-        line_items = (payload.items ?? []).map((i) => ({
-          catalog_object_id: i.variationId || i.id,
-          quantity: String(Math.max(1, Number(i.qty) || 1)),
-          note: i.note,
-        }));
+        line_items = (payload.items ?? [])
+          .map(buildLineItem)
+          .filter((item): item is Record<string, any> => Boolean(item));
       } else {
         // 3B) Single-item “Buy Now” fallback
         const id = String(form.get('variationId') || form.get('id') || '').trim();
         const qty = Number(form.get('qty') || 1);
         const note = String(form.get('note') || '');
+        const price = normalizeMoney(form.get('price') as any);
+        const currency = (form.get('currency') as string) || undefined;
         redirectUrl = (form.get('redirectUrl') as string) || undefined;
 
         if (!id) {
@@ -60,13 +109,14 @@ export async function POST(req: Request) {
             { status: 400 }
           );
         }
-        line_items = [
-          {
-            catalog_object_id: id,
-            quantity: String(Math.max(1, qty)),
-            note,
-          },
-        ];
+        const single = buildLineItem({
+          variationId: id,
+          qty,
+          note,
+          price,
+          currency,
+        });
+        line_items = single ? [single] : [];
       }
     }
 

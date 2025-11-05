@@ -19,6 +19,18 @@ export default function CartPage() {
   );
   const currency = items[0]?.currency ?? 'USD';
 
+  const resolveCatalogObjectId = (item: (typeof items)[number]) => {
+    if (!item) return '';
+    if (item.variationId) return item.variationId;
+    if (typeof item.id === 'string' && item.id.includes(':')) {
+      const parts = item.id.split(':');
+      const last = parts[parts.length - 1];
+      if (last) return last;
+    }
+    if (item.productId) return item.productId;
+    return typeof item.id === 'string' ? item.id : '';
+  };
+
   return (
     <section className="container py-10">
       <Breadcrumbs items={[{ label: 'Cart', url: '/cart' }]} />
@@ -111,12 +123,24 @@ export default function CartPage() {
   method="post"
   onSubmit={(e) => {
     // build the minimal payload for the API
-    const payload = JSON.stringify({
-      items: items.map((i) => ({
-        variationId: i.variationId ?? i.productId ?? i.id, // prefer variation id
+    const preparedItems = items
+      .map((i) => ({
+        variationId: resolveCatalogObjectId(i),
         qty: i.qty,
         note: i.note,
-      })),
+        price: typeof i.price === 'number' ? i.price : Number(i.price) || null,
+        currency: i.currency ?? 'USD',
+      }))
+      .filter((line) => line.variationId);
+
+    if (preparedItems.length === 0) {
+      e.preventDefault();
+      alert('We could not determine the items to checkout. Please refresh the page and add your items again.');
+      return;
+    }
+
+    const payload = JSON.stringify({
+      items: preparedItems,
     });
     const input = document.createElement('input');
     input.type = 'hidden';

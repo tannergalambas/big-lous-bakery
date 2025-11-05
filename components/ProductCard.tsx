@@ -12,6 +12,13 @@ type Product = {
   price?: number | string | null;
   currency?: string;
   image?: string | null;
+  variations?: Array<{
+    id: string;
+    name?: string;
+    price?: number | string | null;
+    currency?: string;
+    image?: string | null;
+  }>;
 };
 
 function getSafeImage(src?: string | null) {
@@ -53,12 +60,19 @@ export default function ProductCard({ product }: { product: Product }) {
   const isRemoteSquareImage =
     typeof safeImage === 'string' &&
     safeImage.startsWith('https://items-images-');
-  
-  const price =
-    typeof product.price === 'string'
-      ? Number(product.price)
-      : product.price ?? 0;
 
+  const defaultVariation = product.variations?.[0];
+  const rawPrice = defaultVariation?.price ?? product.price ?? 0;
+  const price =
+    typeof rawPrice === 'string'
+      ? Number(rawPrice)
+      : typeof rawPrice === 'number'
+        ? rawPrice
+        : 0;
+  const currency = defaultVariation?.currency ?? product.currency ?? 'USD';
+  const variationId = defaultVariation?.id ?? product.id;
+  const cartImage = getSafeImage(defaultVariation?.image) ?? safeImage ?? null;
+  
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -67,12 +81,14 @@ export default function ProductCard({ product }: { product: Product }) {
     
     // Add to cart
     add({
-      id: product.id,
+      id: `${product.id}:${variationId}`,
+      productId: product.id,
+      variationId,
       name: product.name,
       price: price,
-      currency: product.currency || 'USD',
+      currency,
       qty: 1,
-      image: product.image,
+      image: cartImage,
     });
 
     // Brief animation feedback
@@ -158,7 +174,7 @@ export default function ProductCard({ product }: { product: Product }) {
           
           <div className="flex items-center justify-between">
             <span className={`text-lg font-bold transition-all duration-300 ${isHovered ? 'text-brand scale-105' : 'text-brand/80'}`}>
-              {formatMoney(price, product.currency || 'USD')}
+              {formatMoney(price, currency)}
             </span>
             
             {/* Add to Cart Button - NOT clickable to product page */}

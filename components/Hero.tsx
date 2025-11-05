@@ -121,7 +121,7 @@ export default function Hero({
       </div>
 
       {/* Feature Images */}
-      <div className={`hidden lg:block absolute bottom-20 right-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-10 scale-95'}`}>
+      <div className={`hidden lg:block absolute bottom-8 right-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="relative w-[420px] h-[420px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/20 bg-white/40 backdrop-blur">
           <Image
             src={image}
@@ -148,8 +148,6 @@ export default function Hero({
           />
         </div>
       </div>
-
-      
     </section>
   );
 }
